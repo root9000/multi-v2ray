@@ -1,3 +1,21 @@
+> v3.6.4
+* 添加`v2ray update.sh`命令来更新multi-v2ray脚本
+
+> v3.6.3
+* Added: 80端口cdn关闭(去掉域名)
+* Added: 随机生成kcp header时增加wireguard header
+* Changed: service命令变为systemctl
+
+> v3.6.0
+* Fixed: #218
+* Fixed: v2ray重启失败时提示重启成功
+* Fixed: 没有修改配置文件却触发v2ray重启
+* Added: cdn 命令行传参(v2ray cdn)
+
+> v3.5.2
+* 支持80端口和443端口的cdn模式
+* 支持域名按group存储
+
 > v3.2.0
 * 修复单独pip安装时因为翻译'_'模块无法使用的问题
 * 支持v2rayN quic vmess分享格式
