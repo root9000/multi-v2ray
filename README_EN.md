@@ -12,11 +12,13 @@ a tool to manage v2ray config json, support multiple user && group manage
 - V2ray && Iptables Traffic Statistics
 - Command line to manage
 - Multiple user && port manage
+- Cloudcflare cdn mode
+- Support pure ipv6 VPS
+- Support Docker
 - Dynamic port
 - Ban bittorrent
 - Range port
 - TcpFastOpen
-- CDN mode
 - Vmess/Socks5/MTproto share link
 - Support protocol modify:
   - TCP
@@ -37,17 +39,17 @@ a tool to manage v2ray config json, support multiple user && group manage
 ## How To Use
 new install
 ```
-source <(curl -sL https://git.io/fNgqx)
+source <(curl -sL https://v2rays.netlify.app/install.sh)
 ```
 
 keep profile to update
 ```
-source <(curl -sL https://git.io/fNgqx) -k
+source <(curl -sL https://v2rays.netlify.app/install.sh) -k
 ```
 
 uninstall
 ```
-source <(curl -sL https://git.io/fNgqx) --remove
+source <(curl -sL https://v2rays.netlify.app/install.sh) --remove
 ```
 
 ## Command Line
@@ -71,25 +73,26 @@ v2ray [-h|--help] [options]
     tfo                  modify tcpFastOpen
     stream               modify protocol
     cdn                  cdn mode
-    stats                iptables traffic statistics
+    stats                v2ray traffic statistics
+    iptables             iptables traffic statistics
     clean                clean v2ray log
     log                  check v2ray log
 ```
 
 ## Docker Run
+default will create random port + random header(srtp | wechat-video | utp | dtls) kcp profile  
 ```
-docker run -d --name v2ray --restart always --network host jrohy/v2ray
+docker run -d --name v2ray --privileged --restart always --network host jrohy/v2ray
 ```
-it will create random port + random header(srtp | wechat-video | utp | dtls) kcp profile  
+
+custom v2ray config.json:
+```
+docker run -d --name v2ray --privileged -v /path/config.json:/etc/v2ray/config.json --restart always --network host jrohy/v2ray
+```
 
 check v2ray profile:
 ```
 docker exec v2ray bash -c "v2ray info"
-```
-
-only restart container to make effect when u change v2ray config.json:
-```
-docker restart v2ray
 ```
 
 **warning**: if u run with centos, u should close firewall first
@@ -98,10 +101,8 @@ systemctl stop firewalld.service
 systemctl disable firewalld.service
 ```
 
-## Changelog
-see [Changelog](https://github.com/Jrohy/multi-v2ray/blob/master/Changelog.md)
-
 ## Dependent
 docker: https://hub.docker.com/r/jrohy/v2ray  
 pip: https://pypi.org/project/v2ray-util/  
-python3: https://github.com/Jrohy/python3-install
+python3: https://github.com/Jrohy/python3-install  
+acme: https://github.com/Neilpang/acme.sh

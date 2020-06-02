@@ -7,7 +7,7 @@ from ..util_core.v2ray import restart
 from ..util_core.writer import NodeWriter, GroupWriter
 from ..util_core.group import Vmess, Socks, Mtproto, SS
 from ..util_core.selector import GroupSelector, ClientSelector
-from ..util_core.utils import StreamType, stream_list, is_email, clean_iptables, ColorStr
+from ..util_core.utils import StreamType, stream_list, is_email, clean_iptables, random_email, ColorStr, readchar, random_port, port_is_use
 
 @restart(True)
 def new_port(new_stream=None):
@@ -37,25 +37,32 @@ def new_port(new_stream=None):
         stream = salt_stream[0]
         print("{}: {} \n".format(_("random generate (srtp | wechat-video | utp | dtls | wireguard) fake header, new protocol"), ColorStr.green(stream.value)))
 
-    random_port = random.randint(1000, 65535)
-    new_port = input("{0} {1}, {2}: ".format(_("random generate port"), ColorStr.green(str(random_port)), _("enter to use, or input customize port")))
+    new_port = ""
+    while True:
+        new_random_port = random_port(1000, 65535)
+        new_port = input("{0} {1}, {2}: ".format(_("random generate port"), ColorStr.green(str(new_random_port)), _("enter to use, or input customize port")))
 
-    if not new_port:
-        new_port = str(random_port)
+        if not new_port:
+            new_port = str(new_random_port)
+        else:
+            if not new_port.isnumeric():
+                print(_("input error, please input again"))
+                continue
+            elif port_is_use(new_port):
+                print(_("port is use, please input other port!"))
+                continue
+        break
 
-    if new_port.isnumeric():
-        print("")
-        print("{}: {}".format(_("new port"), new_port))
-        print("")
-        nw = NodeWriter()
-        nw.create_new_port(int(new_port), stream, **info)
-        return True
-    else:
-        print(_("input error, please check is number"))
+    print("")
+    print("{}: {}".format(_("new port"), new_port))
+    print("")
+    nw = NodeWriter()
+    nw.create_new_port(int(new_port), stream, **info)
+    return True
 
 @restart()
 def new_user():
-    gs = GroupSelector(_('user number'))
+    gs = GroupSelector(_('add user'))
     group = gs.group
     group_list = gs.group_list
 
@@ -66,10 +73,11 @@ def new_user():
         if type(group.node_list[0]) == Vmess: 
             while True:
                 is_duplicate_email=False
-
-                email = input(_("input email to create user, or enter to pass: "))
+                remail = random_email()
+                tip = _("create random email:") + ColorStr.cyan(remail) + _(", enter to use it or input new email: ")
+                email = input(tip)
                 if email == "":
-                    break
+                    email = remail
                 if not is_email(email):
                     print(_("not email, please input again"))
                     continue
@@ -121,7 +129,7 @@ def del_port():
     else:
         print(_("del group info: "))
         print(group)
-        choice = input(_("delete?(y/n): ")).lower()
+        choice = readchar(_("delete?(y/n): ")).lower()
         if choice == 'y':
             nw = NodeWriter()
             nw.del_port(group)
@@ -141,7 +149,7 @@ def del_user():
         client_index = cs.client_index
         print(_("del user info:"))
         print(group.show_node(client_index))
-        choice = input(_("delete?(y/n): ")).lower()
+        choice = readchar(_("delete?(y/n): ")).lower()
         if choice == 'y':
             if len(group.node_list) == 1:
                 clean_iptables(group.port)

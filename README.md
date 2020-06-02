@@ -13,18 +13,19 @@ V2ray多用户管理脚本，向导式管理[新增|删除|修改]传输协议�
 - [x] **多用户, 多端口管理**, 混合传输协议管理不再是梦
 - [x] 首次安装时产生随机端口，默认配置mkcp + 随机一种 (srtp | wechat-video | utp | dtls | wireguard) header伪装;  
   安装完成显示配置信息;
-- [x] 每天**北京时间**早上3点自动升级重启v2ray核心,降低v2ray因内存小被kill几率。可关闭开启此功能。
 - [x] 查看配置信息显示vmess字符串(v2rayN的分享链接格式)
 - [x] 生成**Telegram**的socks5/MTProto分享链接, 支持socks5 + tls组合
 - [x] 支持http/2, 随机生成伪装h2 path
 - [x] 开启关闭tcpFastOpen
 - [x] 直接开启[CDN](https://github.com/Jrohy/multi-v2ray/wiki/CloudFlare-cdn%E4%BB%A3%E7%90%86v2ray%E6%B5%81%E9%87%8F)
 - [x] 开启关闭动态端口
+- [x] 定时更新v2ray(需手动开启)
 - [x] 支持新版v2ray配置文件格式(v4.1+)
 - [x] 支持范围端口修改
 - [x] 支持程序和**命令行参数**管理控制
+- [x] 支持docker部署
+- [x] 支持纯ipv6 vps
 - [x] 禁止BT
-
 
 ## 功能
 - 一键 启动 / 停止 / 重启 V2ray 服务端
@@ -34,7 +35,7 @@ V2ray多用户管理脚本，向导式管理[新增|删除|修改]传输协议�
 - 开启关闭动态端口
 - bittorrent的禁止与放行
 - 单端口, 范围端口的修改
-- 直接走cdn(80和443端口)
+- 直接走Cloudcflare cdn
 - 开启关闭tcpFastOpen
 - 快速查看服务器连接信息, 常规配置修改
 - 自由更改**传输配置**：
@@ -55,17 +56,17 @@ V2ray多用户管理脚本，向导式管理[新增|删除|修改]传输协议�
 
 ## 安装命令
 ```
-source <(curl -sL https://git.io/fNgqx) --zh
+source <(curl -sL https://multi.netlify.app/v2ray.sh) --zh
 ```
 
 ## 升级命令(保留配置文件更新)
 ```
-source <(curl -sL https://git.io/fNgqx) -k
+source <(curl -sL https://multi.netlify.app/v2ray.sh) -k
 ```
 
 ## 卸载命令
 ```
-source <(curl -sL https://git.io/fNgqx) --remove
+source <(curl -sL https://multi.netlify.app/v2ray.sh) --remove
 ```
 
 ## 命令行参数
@@ -89,7 +90,8 @@ v2ray [-h|--help] [options]
     tfo                  修改tcpFastOpen
     stream               修改传输协议
     cdn                  走cdn
-    stats                iptables流量统计
+    stats                v2ray流量统计
+    iptables             iptables流量统计
     clean                清理日志
     log                  查看日志
 ```
@@ -98,17 +100,17 @@ v2ray [-h|--help] [options]
 
 默认创建mkcp + 随机一种伪装头配置文件：
 ```
-docker run -d --name v2ray --restart always --network host jrohy/v2ray
+docker run -d --name v2ray --privileged --restart always --network host jrohy/v2ray
+```
+
+自定义v2ray配置文件:
+```
+docker run -d --name v2ray --privileged -v /path/config.json:/etc/v2ray/config.json --restart always --network host jrohy/v2ray
 ```
 
 查看v2ray配置:
 ```
 docker exec v2ray bash -c "v2ray info"
-```
-
-如果修改了v2ray配置文件直接重启v2ray容器来生效:
-```
-docker restart v2ray
 ```
 
 **warning**: 如果用centos，需要先关闭防火墙
@@ -123,4 +125,5 @@ systemctl disable firewalld.service
 ## 依赖
 docker: https://hub.docker.com/r/jrohy/v2ray  
 pip: https://pypi.org/project/v2ray-util/  
-python3: https://github.com/Jrohy/python3-install
+python3: https://github.com/Jrohy/python3-install  
+acme: https://github.com/Neilpang/acme.sh

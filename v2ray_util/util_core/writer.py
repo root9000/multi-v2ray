@@ -7,7 +7,7 @@ import string
 import uuid
 
 from .config import Config
-from .utils import port_is_use, StreamType
+from .utils import port_is_use, StreamType, random_port
 from .loader import Loader
 from .group import Mtproto, Vmess, Socks
 
@@ -199,7 +199,8 @@ class StreamWriter(Writer):
             ws = self.load_template('ws.json')
             salt = '/' + ''.join(random.sample(string.ascii_letters + string.digits, 8)) + '/'
             ws["wsSettings"]["path"] = salt
-            ws["wsSettings"]["headers"]["Host"] = kw['host']
+            if "host" in kw:
+                ws["wsSettings"]["headers"]["Host"] = kw['host']
             self.part_json["streamSettings"] = ws
 
         elif self.stream_type == StreamType.H2:
@@ -230,13 +231,6 @@ class GroupWriter(Writer):
 
     def write_port(self, port):
         self.part_json["port"] = str(port) if str(port).find("-") > 0 else int(port)
-        self.save()
-
-    def write_domain(self, domain=''):
-        if domain:
-            self.part_json["domain"] = domain
-        elif "domain" in self.part_json:
-            del self.part_json["domain"]
         self.save()
 
     def write_ss_password(self, new_password):
@@ -398,11 +392,7 @@ class GlobalWriter(Writer):
             dokodemo_door = stats_json["dokodemoDoor"]
             del stats_json["dokodemoDoor"]
             #产生随机dokodemo_door的连接端口
-            while True:
-                random_port = random.randint(1000, 65535)
-                if not port_is_use(random_port):
-                    break
-            dokodemo_door["port"] = random_port
+            dokodemo_door["port"] = random_port(1000, 65535)
 
             has_door = False
             for inbound in self.config["inbounds"]:
